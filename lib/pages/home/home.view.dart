@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:erpapp/pages/home/home.controller.dart';
+import 'package:erpapp/pages/home/issuedetail.view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:erpapp/widgets/form.dart';
-import 'package:erpapp/widgets/form.dart';
+import 'package:erpapp/helpers/values.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,34 +13,39 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String selectedPriority = 'All';
+  String selectedStatus = 'All';
+  TextEditingController searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<HomeController>.reactive(
       viewModelBuilder: () => HomeController(),
       builder: (context, ctrl, child) {
-        return Scaffold(
-          appBar: AppBar(
-            title: textH1('Issue Log'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {
-                  // showSearch(
-                  //   context: context,
-                  //   delegate: IssueSearchDelegate(ctrl),
-                  // );
-                },
+        return SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              title: textH1('Issue Log', color: whiteColor),
+              backgroundColor: primaryColor,
+              elevation: 0,
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  searchBar(ctrl),
+                  const SizedBox(height: 15),
+                  filterSection(ctrl),
+                  const SizedBox(height: 15),
+                  Divider(),
+                  Expanded(
+                    child: ctrl.filteredIssues.isEmpty
+                        ? emptyState('No issues logged yet')
+                        : listViewBuilder(ctrl),
+                  ),
+                ],
               ),
-            ],
-          ),
-          body: ctrl.issues.isEmpty
-              ? emptyState('No issues logged yet')
-              : listViewBuilder(ctrl),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => ctrl.addIssue(context),
-            icon: const Icon(Icons.add),
-            label: const Text("New Issue"),
-            backgroundColor: Colors.blueAccent,
+            ),
           ),
         );
       },
@@ -49,10 +55,66 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget textH1(String text) {
-    return Text(
-      text,
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+  Widget searchBar(HomeController ctrl) {
+    return TextField(
+      controller: searchController,
+      decoration: InputDecoration(
+        hintText: "Search issues...",
+        prefixIcon: Icon(Icons.search),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
+      onChanged: (query) {
+        ctrl.updateSearchQuery(query);
+      },
+    );
+  }
+
+  Widget filterSection(HomeController ctrl) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _showPriorityBottomSheet(ctrl),
+                icon: const Icon(Icons.flag, size: 20),
+                label: Text("Priority: $selectedPriority"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: blackColor,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: primaryColor),
+                  ),
+                  elevation: 2,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _showStatusBottomSheet(ctrl),
+                icon: const Icon(Icons.check_circle_outline, size: 20),
+                label: Text("Status: $selectedStatus"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: blackColor,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: primaryColor),
+                  ),
+                  elevation: 2,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -65,35 +127,111 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget listViewBuilder(HomeController ctrl) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: ListView.builder(
-        itemCount: ctrl.issues.length,
-        itemBuilder: (context, index) {
-          final issue = ctrl.issues[index];
-          return issueCard(issue, ctrl, context);
-        },
+  void _showPriorityBottomSheet(HomeController ctrl) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return _buildBottomSheet(
+          title: "Select Priority",
+          options: ['All', 'Low', 'Medium', 'High', 'Critical'],
+          selectedValue: selectedPriority,
+          onSelected: (value) {
+            setState(() {
+              selectedPriority = value;
+              ctrl.filterIssues(
+                  priority: selectedPriority, status: selectedStatus);
+            });
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
+  void _showStatusBottomSheet(HomeController ctrl) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return _buildBottomSheet(
+          title: "Select Status",
+          options: ['All', 'Open', 'In Progress', 'Resolved', 'Closed'],
+          selectedValue: selectedStatus,
+          onSelected: (value) {
+            setState(() {
+              selectedStatus = value;
+              ctrl.filterIssues(
+                  priority: selectedPriority, status: selectedStatus);
+            });
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildBottomSheet({
+    required String title,
+    required List<String> options,
+    required String selectedValue,
+    required Function(String) onSelected,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          Column(
+            children: options.map((option) {
+              return ListTile(
+                title: Text(option),
+                trailing: option == selectedValue
+                    ? const Icon(Icons.check, color: Colors.blue)
+                    : null,
+                onTap: () => onSelected(option),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget issueCard(issue, HomeController ctrl, BuildContext context) {
+  Widget listViewBuilder(HomeController ctrl) {
+    return ListView.builder(
+      itemCount: ctrl.filteredIssues.length,
+      itemBuilder: (context, index) {
+        final issue = ctrl.filteredIssues[index];
+        return issueCard(issue, context);
+      },
+    );
+  }
+
+  Widget issueCard(Issue issue, BuildContext context) {
+    Color cardColor = primaryColor.withOpacity(0.8);
     return Card(
-      elevation: 3,
+      color: cardColor,
+      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(5),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
+        contentPadding: const EdgeInsets.all(16),
         leading: Icon(
           issue.isResolved ? Icons.check_circle : Icons.warning_amber,
-          color: issue.isResolved ? Colors.green : Colors.red,
-          size: 32,
+          color: Colors.white,
+          size: 36,
         ),
         title: Text(
           issue.title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.white,
+          ),
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 6),
@@ -101,42 +239,18 @@ class _HomePageState extends State<HomePage> {
             issue.description,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
+            style: const TextStyle(fontSize: 14, color: Colors.white70),
           ),
         ),
-        trailing: statusIndicator(issue),
-        onTap: () => ctrl.viewIssue(context, issue),
-      ),
-    );
-  }
-
-  Widget statusIndicator(issue) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          issue.timestamp,
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: issue.isResolved
-                ? Colors.green.withOpacity(0.2)
-                : Colors.red.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            issue.isResolved ? 'Resolved' : 'Pending',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: issue.isResolved ? Colors.green : Colors.red,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => IssueDetailPage(issue: issue),
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }

@@ -148,29 +148,32 @@ Widget textField(String labelText,
     bool readOnly = false,
     Function(String)? onChanged,
     Function()? onTap}) {
-  return TextFormField(
-    validator: (text) {
-      if (validator != null) {
-        return validator(text);
-      }
-      return null;
-    },
-    controller: controller,
-    keyboardType: keyboardType,
-    maxLength: maxLength,
-    obscureText: isPassword,
-    readOnly: readOnly,
-    onChanged: onChanged,
-    onTap: onTap,
-    decoration: InputDecoration(
-        counterText: "",
-        prefixText: prefixText, // Prefix text
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-        labelText: labelText,
-        hintText: hintText,
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400)),
+  return SizedBox(
+    height: 50,
+    child: TextFormField(
+      validator: (text) {
+        if (validator != null) {
+          return validator(text);
+        }
+        return null;
+      },
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLength: maxLength,
+      obscureText: isPassword,
+      readOnly: readOnly,
+      onChanged: onChanged,
+      onTap: onTap,
+      decoration: InputDecoration(
+          counterText: "",
+          prefixText: prefixText, // Prefix text
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          labelText: labelText,
+          hintText: hintText,
+          hintStyle: const TextStyle(fontWeight: FontWeight.w400)),
+    ),
   );
 }
 

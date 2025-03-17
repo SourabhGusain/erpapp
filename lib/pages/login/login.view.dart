@@ -44,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(height: 20),
                       Image.asset(
                         'assets/img/login-img.png',
                         height: 220,
@@ -51,24 +52,17 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 30),
                       textH1('Welcome Back!',
                           font_size: 24, color: Colors.blueGrey[900]!),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 5),
                       subtext('Login to continue',
                           font_size: 16, color: Colors.grey[600]!),
                       const SizedBox(height: 30),
-                      customTextField(
-                        label: 'Email',
-                        icon: Icons.email,
-                        controller: TextEditingController(),
-                        validator: emailValidator,
-                      ),
+                      textField('Email',
+                          controller: TextEditingController(),
+                          validator: emailValidator),
                       const SizedBox(height: 15),
-                      customTextField(
-                        label: 'Password',
-                        icon: Icons.lock,
-                        isPassword: true,
-                        controller: TextEditingController(),
-                        validator: emptyValidator,
-                      ),
+                      textField('Password',
+                          controller: TextEditingController(),
+                          validator: emailValidator),
                       const SizedBox(height: 10),
                       Align(
                         alignment: Alignment.centerRight,
@@ -83,25 +77,16 @@ class _LoginPageState extends State<LoginPage> {
                               text_border: TextDecoration.none),
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 50),
                       SizedBox(
                         height: ResponsiveApp().height * 0.06,
                         width: ResponsiveApp().width * 1,
                         child: darkButton(
-                          buttonText('Login', color: whiteColor),
+                          buttonText('Log In', color: whiteColor),
                           onPressed: () {
                             Get.toWithNoBack(context, () => const HomePage());
                           },
                         ),
-                      ),
-                      const SizedBox(height: 120),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          textH2("Don't have an account?"),
-                          const SizedBox(width: 10),
-                          buttonText('Signup', color: primaryColor),
-                        ],
                       ),
                     ],
                   ),
