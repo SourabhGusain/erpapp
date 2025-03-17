@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:goindia/helpers/get.dart';
-import 'package:goindia/helpers/session.dart';
-import 'package:goindia/pages/format/format.view.dart';
+import 'package:erpapp/helpers/get.dart';
+import 'package:erpapp/helpers/session.dart';
+import 'package:erpapp/pages/login/login.view.dart';
+import 'package:erpapp/widgets/form.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,11 +24,11 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     ResponsiveApp.set(context);
     return MaterialApp(
-      title: 'Go India',
+      title: 'Erp App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           primarySwatch: Colors.orange, scaffoldBackgroundColor: Colors.white),
-      home: const FormatPage(),
+      home: const LoginPage(),
     );
   }
 }

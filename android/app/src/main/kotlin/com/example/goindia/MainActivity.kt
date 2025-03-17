@@ -1,4 +1,4 @@
-package com.example.goindia
+package com.example.erpapp
 
 import io.flutter.embedding.android.FlutterActivity
 

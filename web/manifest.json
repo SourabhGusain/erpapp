@@ -1,6 +1,6 @@
 {
-    "name": "goindia",
-    "short_name": "goindia",
+    "name": "erpapp",
+    "short_name": "erpapp",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
