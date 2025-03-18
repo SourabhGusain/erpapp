@@ -3,7 +3,8 @@ import 'package:stacked/stacked.dart';
 
 class Issue {
   final String title;
-  final String description;
+  final String shortDescription;
+  final String longDescription;
   final String timestamp;
   final String priority;
   String status;
@@ -11,7 +12,8 @@ class Issue {
 
   Issue({
     required this.title,
-    required this.description,
+    required this.shortDescription,
+    required this.longDescription,
     required this.timestamp,
     required this.priority,
     required this.status,
@@ -22,26 +24,42 @@ class Issue {
 class HomeController extends BaseViewModel {
   List<Issue> issues = [
     Issue(
-      title: "Login Page Crash",
-      description: "App crashes when wrong credentials are entered.",
-      timestamp: "Mar 16, 2025",
+      title: "Authentication Error",
+      shortDescription: "Users unable to log in with correct credentials.",
+      longDescription:
+          "Many users have reported that they are unable to log in despite entering the correct credentials. This issue appears to be affecting multiple accounts across different regions. We suspect a backend authentication failure or an expired token issue that needs further investigation.",
+      timestamp: "10:45 AM",
       priority: "High",
       status: "Open",
       isResolved: false,
     ),
     Issue(
-      title: "Dark Mode UI Glitch",
-      description: "Text is unreadable in some sections.",
-      timestamp: "Mar 15, 2025",
+      title: "UI Overlap in Dark Mode",
+      shortDescription: "Some text elements overlap in dark mode view.",
+      longDescription:
+          "In dark mode, some text elements are overlapping with icons, making it difficult to read. This issue occurs particularly in the settings and notification sections, causing usability challenges. A CSS or Flutter UI fix is required to address the problem.",
+      timestamp: "Yesterday",
       priority: "Medium",
       status: "In Progress",
       isResolved: false,
     ),
     Issue(
-      title: "Slow Performance on Dashboard",
-      description: "Dashboard takes too long to load statistics.",
-      timestamp: "Mar 14, 2025",
+      title: "App Freezing Issue",
+      shortDescription: "App freezes when switching between tabs rapidly.",
+      longDescription:
+          "Users have reported that when they quickly switch between tabs, the app becomes unresponsive for several seconds. This issue is more frequent on older devices with less memory. A memory management optimization might be needed to improve performance.",
+      timestamp: "Mar 16",
       priority: "Critical",
+      status: "Open",
+      isResolved: false,
+    ),
+    Issue(
+      title: "Notification Delay",
+      shortDescription: "Push notifications are delayed by 5-10 minutes.",
+      longDescription:
+          "Push notifications for new messages and alerts are getting delayed by 5 to 10 minutes. The issue seems to be intermittent and may be related to the background refresh settings. Logs indicate a delay in fetching notification data from the server.",
+      timestamp: "Mar 14",
+      priority: "Low",
       status: "Resolved",
       isResolved: true,
     ),
@@ -65,7 +83,7 @@ class HomeController extends BaseViewModel {
       bool matchesPriority = priority == "All" || issue.priority == priority;
       bool matchesStatus = status == "All" || issue.status == status;
       bool matchesSearch = issue.title.toLowerCase().contains(searchQuery) ||
-          issue.description.toLowerCase().contains(searchQuery);
+          issue.shortDescription.toLowerCase().contains(searchQuery);
       return matchesPriority && matchesStatus && matchesSearch;
     }).toList();
     notifyListeners();
@@ -96,11 +114,11 @@ class HomeController extends BaseViewModel {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(issue.description),
+              Text(issue.longDescription),
               const SizedBox(height: 10),
               Text("Priority: ${issue.priority}"),
               Text("Status: ${issue.status}"),
-              Text("Reported on: ${issue.timestamp}",
+              Text("Reported: ${issue.timestamp}",
                   style: const TextStyle(color: Colors.grey)),
             ],
           ),
