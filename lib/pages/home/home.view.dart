@@ -208,7 +208,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget issueCard(Issue issue) {
+  Widget issueCard(issue) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Card(

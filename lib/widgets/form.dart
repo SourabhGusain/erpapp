@@ -361,3 +361,24 @@ String? emailValidator(String? val) {
   }
   return null;
 }
+
+// Validation for Mobile Number
+String? mobileValidator(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Mobile number is required';
+  }
+  if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+    return 'Enter a valid 10-digit mobile number';
+  }
+  return null;
+}
+
+String? passwordValidator(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Password is required';
+  }
+  if (value.length < 4) {
+    return 'Password must be at least 6 characters long';
+  }
+  return null;
+}

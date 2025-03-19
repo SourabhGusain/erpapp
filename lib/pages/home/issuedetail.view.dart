@@ -5,7 +5,7 @@ import 'package:erpapp/helpers/values.dart';
 import 'package:erpapp/widgets/form.dart';
 
 class IssueDetailPage extends StatelessWidget {
-  final Issue issue;
+  final issue;
 
   const IssueDetailPage({Key? key, required this.issue}) : super(key: key);
 
