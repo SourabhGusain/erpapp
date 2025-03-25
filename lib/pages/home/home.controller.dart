@@ -8,108 +8,72 @@ class HomeController extends BaseViewModel {
   List<Task> filteredIssues = [];
   String searchQuery = "";
 
-  /// Initialize and fetch issues
   Future<void> init() async {
     await fetchIssues();
   }
 
-  /// Fetch issues from API
   Future<void> fetchIssues() async {
     setBusy(true);
-    ApiService apiService = ApiService();
-
     try {
-      IssueLogModel? issueLogModel = await apiService.fetchIssueLogs();
+      ApiService apiService = ApiService();
+      List<Task> fetchedIssues = await apiService.fetchIssueLogs();
 
-      if (issueLogModel != null && issueLogModel.data.isNotEmpty) {
-        issues = List<Task>.from(issueLogModel.data);
-        filteredIssues = List.from(issues);
+      if (fetchedIssues.isNotEmpty) {
+        issues = fetchedIssues;
+        filterIssues(); // Auto-filter on fetch
       } else {
-        debugPrint("⚠️ No issue logs found.");
+        debugPrint("⚠️ No issues found.");
+        issues.clear();
+        filteredIssues.clear();
       }
     } catch (e) {
-      debugPrint("❌ Exception in fetchIssues: $e");
+      debugPrint("❌ Error fetching issues: $e");
+    } finally {
+      setBusy(false);
+      notifyListeners();
     }
-
-    setBusy(false);
-    notifyListeners();
   }
 
-  /// Update search query and filter issues
   void updateSearchQuery(String query) {
-    searchQuery = query.toLowerCase();
+    searchQuery = query.trim().toLowerCase();
     filterIssues();
   }
 
-  /// Filter issues based on priority, status, and search query
   void filterIssues({String priority = "All", String status = "All"}) {
+    print("Filtering issues with:");
+    print("Priority: $priority");
+    print("Status: $status");
+    print("Search Query: $searchQuery");
+
     filteredIssues = issues.where((issue) {
       bool matchesPriority = priority == "All" ||
           issue.priority.toLowerCase() == priority.toLowerCase();
       bool matchesStatus =
           status == "All" || issue.status.toLowerCase() == status.toLowerCase();
-      bool matchesSearch =
+      bool matchesSearch = searchQuery.isEmpty ||
           issue.description.toLowerCase().contains(searchQuery);
+
       return matchesPriority && matchesStatus && matchesSearch;
     }).toList();
+
+    print("Filtered Issues Count: ${filteredIssues.length}");
 
     notifyListeners();
   }
 
-  /// Get color based on priority level
   Color getColorBasedOnPriority(String priority) {
-    switch (priority.toLowerCase()) {
-      case "low":
-        return Colors.green.shade300;
-      case "medium":
-        return Colors.orange.shade300;
-      case "high":
-        return Colors.red.shade300;
-      case "critical":
-        return Colors.red.shade700;
-      default:
-        return Colors.blue.shade300;
-    }
+    return {
+          "low": Colors.green.shade300,
+          "medium": Colors.orange.shade300,
+          "high": Colors.red.shade300,
+          "critical": Colors.red.shade700,
+        }[priority.toLowerCase()] ??
+        Colors.blue.shade300;
   }
 
-  /// Show issue details and allow resolving it
-  void viewIssue(BuildContext context, Task issue) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(issue.description),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Priority: ${issue.priority}"),
-              Text("Status: ${issue.status}"),
-              Text("Reported: ${issue.createdOn.toString()}",
-                  style: const TextStyle(color: Colors.grey)),
-            ],
-          ),
-          actions: [
-            if (issue.status != "Resolved")
-              TextButton(
-                onPressed: () {
-                  issue.status = "Resolved";
-                  notifyListeners();
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("✅ Issue marked as Resolved!")),
-                  );
-                },
-                child: const Text("Mark as Resolved"),
-              ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
-            ),
-          ],
-        );
-      },
-    );
+  /// Mark issue as resolved
+  void markIssueResolved(Task issue) {
+    issue.status = "Resolved";
+    notifyListeners();
   }
 }

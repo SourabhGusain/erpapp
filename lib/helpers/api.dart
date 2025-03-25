@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 // import 'package:chanakyaapp/helpers/get.dart';
 import 'package:erpapp/helpers/session.dart';
 import 'package:dio/dio.dart';
@@ -60,18 +61,20 @@ class Api {
     Map returnObj = {"ok": 0, "data": [], "message": "", "error": ""};
     try {
       // var dio = Dio();
-      if (headers != null) {
-        dio.options.headers = headers;
-      }
-      Session session = Session();
-      String? key = await session.getSession("loggedInUserKey");
-      if (key != null) {
-        dio.options.headers['Authorization'] = "Token $key";
-      }
+      // if (headers != null) {
+      //   dio.options.headers = headers;
+      // }
+      // Session session = Session();
+      // String? key = await session.getSession("loggedInUserKey");
+      // if (key != null) {
+      //   dio.options.headers['Authorization'] = "Token $key";
+      // }
       // dio.options.headers['Authorization'] =
       //     'gAAAAABnWoSsfV85KkUSdWq3hnBoHtYR9pMBFLTmpYVOSPgvW-jNe6JfUPD9d6qfHJoCWOYFsnaA_Ss0Ru2-Gm-_-obAcm6wYHkKE7Blf0Wa0OHZAJefZn0yG5tZZP9SdkFQ0-Xd6Ba4';
-
-      var response = await dio.post(api, data: JsonEncodedData);
+      print(jsonEncode(JsonEncodedData));
+      var response = await dio.post(api, data: jsonEncode(JsonEncodedData));
+      print(response);
+      print('-----------------------');
       // List<Cookie> cookie = await cookieJar.loadForRequest(Uri.parse(api));
       if (response.statusCode == 200) {
         if (response.data['ok'] > 0) {

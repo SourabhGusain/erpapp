@@ -1,87 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:erpapp/models/login.dart';
-import 'dart:convert';
+import 'package:erpapp/helpers/get.dart';
+import 'package:erpapp/pages/home/home.view.dart';
+import 'package:erpapp/helpers/session.dart';
 
 class LoginController extends BaseViewModel {
-  final TextEditingController mobileController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final mobileController = TextEditingController();
+  final passwordController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
   bool isLoading = false;
+  final Session session = Session();
 
-  void toggleLoading(bool state) {
+  final _loginModel = LoginModel(mobile: '', password: '');
+
+  void _toggleLoading(bool state) {
     isLoading = state;
     notifyListeners();
   }
 
   Future<void> login(BuildContext context) async {
-    if (!(formKey.currentState?.validate() ?? false)) {
-      print("Form validation failed.");
-      return;
-    }
+    if (!(formKey.currentState?.validate() ?? false)) return;
 
-    toggleLoading(true);
-    String mobile = mobileController.text.trim();
-    String password = passwordController.text.trim();
-    print("User Input: Mobile: $mobile, Password: $password");
-
+    _toggleLoading(true);
     try {
-      // Hardcoded credentials for temporary login
-      if (mobile == "6398792562" && password == "roax") {
-        print("Temporary Login Successful");
+      final response = await LoginModel(
+        mobile: mobileController.text.trim(),
+        password: passwordController.text.trim(),
+      ).login();
 
+      if (response["ok"] == 1) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login Successful!')),
         );
-
-        // Navigate to Home Page after successful login
-        Navigator.pushReplacementNamed(context, "/home");
+        Get.toWithNoBack(context, () => HomePage(session: session));
       } else {
-        throw Exception("Invalid credentials. Try 9999999999 / password123");
+        throw Exception(response["message"] ?? "Login failed.");
       }
     } catch (e) {
-      print("Login error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     } finally {
-      toggleLoading(false);
+      _toggleLoading(false);
     }
   }
 
-  // Future<void> login(BuildContext context) async {
-  //   if (!(formKey.currentState?.validate() ?? false)) {
-  //     print("Form validation failed.");
-  //     return;
-  //   }
-
-  //   toggleLoading(true);
-  //   String mobile = mobileController.text.trim();
-  //   String password = passwordController.text.trim();
-  //   print("User Input: Mobile: $mobile, Password: $password");
-
-  //   try {
-  //     var loginModel = LoginModel(mobile: mobile, password: password);
-  //     print("Sending Request: ${jsonEncode(loginModel.toJson())}");
-  //     var response = await loginModel.login();
-  //     print("API Response: $response");
-
-  //     if (response["ok"] == 1) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Login Successful!')),
-  //       );
-  //     } else {
-  //       throw Exception(response["error"] ?? 'Login failed');
-  //     }
-  //   } catch (e) {
-  //     print("Login error: $e");
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Error: $e')),
-  //     );
-  //   } finally {
-  //     toggleLoading(false);
-  //   }
-  // }
+  // Future<Map<String, dynamic>?> getSessionData() => _loginModel.getSession();
+  // Future<bool> hasSession() => _loginModel.hasSession();
 
   @override
   void dispose() {

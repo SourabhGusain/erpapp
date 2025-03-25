@@ -7,9 +7,14 @@ import 'package:erpapp/widgets/form.dart';
 import 'package:erpapp/helpers/values.dart';
 import 'package:erpapp/helpers/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:intl/intl.dart';
+import 'package:erpapp/models/issuelog.dart';
+import 'package:erpapp/helpers/session.dart';
+import 'package:secure_application/secure_application.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Session session;
+  HomePage({super.key, required this.session});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -20,63 +25,76 @@ class _HomePageState extends State<HomePage> {
   String selectedStatus = 'All';
   TextEditingController searchController = TextEditingController();
 
+  final SecureApplicationController _secureController =
+      SecureApplicationController(
+          SecureApplicationState()); // Allows screenshots
+
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<HomeController>.reactive(
-      viewModelBuilder: () => HomeController(),
-      onViewModelReady: (controller) {
-        controller.init();
-      },
-      builder: (context, ctrl, child) {
-        return SafeArea(
-          child: Scaffold(
-            appBar: AppBar(
-              title: textH1('Issue Log', color: whiteColor),
-              backgroundColor: primaryColor,
-              elevation: 0,
-              actions: [
-                IconButton(
-                  icon: const Icon(LucideIcons.logOut, color: Colors.white),
-                  onPressed: () {
-                    Get.toWithNoBack(context, () => const LoginPage());
-                  },
+    final SecureApplicationController _secureController =
+        SecureApplicationController(SecureApplicationState());
+
+    return SecureApplication(
+      child: SecureApplicationProvider(
+        child: ViewModelBuilder<HomeController>.reactive(
+          viewModelBuilder: () => HomeController(),
+          onViewModelReady: (controller) {
+            controller.init();
+            _secureController.unlock(); // Corrected method
+          },
+          builder: (context, ctrl, child) {
+            return SafeArea(
+              child: Scaffold(
+                appBar: AppBar(
+                  title: textH1('Issue Log', color: whiteColor),
+                  backgroundColor: primaryColor,
+                  elevation: 0,
+                  actions: [
+                    IconButton(
+                      icon: const Icon(LucideIcons.logOut, color: Colors.white),
+                      onPressed: () async {
+                        await widget.session.removeSession('user_token');
+                        Get.toWithNoBack(
+                            context, () => LoginPage(session: widget.session));
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  searchBar(ctrl),
-                  const SizedBox(height: 15),
-                  filterSection(ctrl),
-                  const SizedBox(height: 5),
-                  const Divider(),
-                  const SizedBox(height: 5),
-                  Expanded(
-                    child: ctrl.filteredIssues.isEmpty
-                        ? emptyState('No issues logged yet')
-                        : listViewBuilder(ctrl),
+                body: RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {});
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        searchBar(ctrl),
+                        const SizedBox(height: 15),
+                        filterSection(ctrl),
+                        const SizedBox(height: 5),
+                        const Divider(),
+                        const SizedBox(height: 5),
+                        Expanded(
+                          child: ctrl.filteredIssues.isEmpty
+                              ? emptyState('No issues logged yet')
+                              : listViewBuilder(ctrl),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 
   Widget searchBar(HomeController ctrl) {
-    return TextField(
+    return textField(
+      "Search issues...",
       controller: searchController,
-      decoration: InputDecoration(
-        hintText: "Search issues...",
-        prefixIcon: const Icon(Icons.search),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
       onChanged: ctrl.updateSearchQuery,
     );
   }
@@ -103,6 +121,81 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget listViewBuilder(HomeController ctrl) {
+    return ListView.builder(
+      itemCount: ctrl.filteredIssues.length,
+      itemBuilder: (context, index) {
+        final issue = ctrl.filteredIssues[index];
+        return issueCard(issue);
+      },
+    );
+  }
+
+  Widget issueCard(Task issue) {
+    return Card(
+        color: Colors.white,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => IssueDetailPage(issue: issue),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+            child: Row(children: [
+              CircleAvatar(
+                backgroundColor: primaryColor,
+                child: textH1(
+                  issue.title.isNotEmpty ? issue.title[0].toUpperCase() : "?",
+                  color: whiteColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        textH2(
+                          issue.title.length > 25
+                              ? "${issue.title.substring(0, 25)}..."
+                              : issue.title,
+                          font_size: 12,
+                        ),
+                        const SizedBox(width: 8),
+                        subtext(
+                            DateFormat('yyyy-MM-dd').format(issue.createdOn),
+                            font_size: 11,
+                            color: const Color.fromARGB(255, 78, 78, 78)),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    subtext(
+                        issue.description.length > 65
+                            ? "${issue.description.substring(0, 70)}..."
+                            : issue.description,
+                        maxLines: 2,
+                        font_size: 12,
+                        color: blackColor,
+                        font_weight: FontWeight.w400),
+                  ],
+                ),
+              ),
+            ]),
+          ),
+        ));
+  }
+
   Widget filterButton(
       {required String text,
       required IconData icon,
@@ -110,7 +203,7 @@ class _HomePageState extends State<HomePage> {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, size: 20),
-      label: Text(text),
+      label: textH3(text),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: blackColor,
@@ -126,10 +219,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget emptyState(String message) {
     return Center(
-      child: Text(
-        message,
-        style: const TextStyle(fontSize: 16, color: Colors.grey),
-      ),
+      child: textH2(message, color: Colors.grey),
     );
   }
 
@@ -150,7 +240,7 @@ class _HomePageState extends State<HomePage> {
   void _showStatusBottomSheet(HomeController ctrl) {
     _showBottomSheet(
       title: "Select Status",
-      options: ['All', 'Open', 'In Progress', 'Resolved', 'Closed'],
+      options: ['All', 'Open', 'In_Progress', 'Resolved', 'Closed'],
       selectedValue: selectedStatus,
       onSelected: (value) {
         setState(() {
@@ -195,83 +285,6 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
-    );
-  }
-
-  Widget listViewBuilder(HomeController ctrl) {
-    return ListView.builder(
-      itemCount: ctrl.filteredIssues.length,
-      itemBuilder: (context, index) {
-        final issue = ctrl.filteredIssues[index];
-        return issueCard(issue);
-      },
-    );
-  }
-
-  Widget issueCard(issue) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Card(
-        color: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => IssueDetailPage(issue: issue),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.blueAccent,
-                  child: Text(
-                    issue.title[0].toUpperCase(),
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        issue.title,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.black87),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        issue.shortDescription,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 14, color: Colors.black54),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  issue.timestamp,
-                  style: const TextStyle(fontSize: 12, color: Colors.black45),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

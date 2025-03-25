@@ -140,7 +140,7 @@ Widget linkText(String text,
 Widget textField(String labelText,
     {TextEditingController? controller,
     String? hintText,
-    Function? validator,
+    String? Function(String?)? validator, // Corrected validator type
     TextInputType keyboardType = TextInputType.text,
     int? maxLength,
     String prefixText = "",
@@ -149,14 +149,9 @@ Widget textField(String labelText,
     Function(String)? onChanged,
     Function()? onTap}) {
   return SizedBox(
-    height: 50,
+    height: 70, // Increased height for consistent sizing
     child: TextFormField(
-      validator: (text) {
-        if (validator != null) {
-          return validator(text);
-        }
-        return null;
-      },
+      validator: validator, // Directly use validator function
       controller: controller,
       keyboardType: keyboardType,
       maxLength: maxLength,
@@ -165,14 +160,17 @@ Widget textField(String labelText,
       onChanged: onChanged,
       onTap: onTap,
       decoration: InputDecoration(
-          counterText: "",
-          prefixText: prefixText, // Prefix text
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
-          labelText: labelText,
-          hintText: hintText,
-          hintStyle: const TextStyle(fontWeight: FontWeight.w400)),
+        counterText: "",
+        prefixText: prefixText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        labelText: labelText,
+        hintText: hintText,
+        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 15, horizontal: 10), // Added padding
+      ),
     ),
   );
 }
@@ -378,7 +376,7 @@ String? passwordValidator(String? value) {
     return 'Password is required';
   }
   if (value.length < 4) {
-    return 'Password must be at least 6 characters long';
+    return 'Password must be at least 4 characters long';
   }
   return null;
 }

@@ -1,0 +1,2 @@
+D:/Projects(Official)/A_Application Development/Project5_erp/erpapp/android/app/.cxx/RelWithDebInfo/4iy5k5g1/x86_64/CMakeFiles/edit_cache.dir
+D:/Projects(Official)/A_Application Development/Project5_erp/erpapp/android/app/.cxx/RelWithDebInfo/4iy5k5g1/x86_64/CMakeFiles/rebuild_cache.dir

@@ -1,46 +1,47 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:erpapp/helpers/api.dart';
+import 'package:erpapp/helpers/session.dart';
 import 'package:erpapp/helpers/values.dart';
 
 class LoginModel extends Api {
   final String mobile;
   final String password;
+  final Session session = Session();
 
   LoginModel({required this.mobile, required this.password});
 
-  Map<String, dynamic> toJson() => {
-        "mobile": mobile,
-        "password": password,
-      };
+  Map<String, dynamic> toJson() => {"mobile": mobile, "password": password};
 
   Future<Map<String, dynamic>> login() async {
-    Map<String, dynamic> result = {
-      "ok": 0,
-      "data": null,
-      "message": "",
-      "error": "Unknown error",
-    };
-
     try {
-      final String url = "$api_url/partners/login/";
-      print("Request URL: $url");
-      print("Request Body: ${jsonEncode(toJson())}");
+      final url = "$api_url/partners/login/";
+      final response = await postCalling(url, toJson());
 
-      var response = await postCalling(url, toJson()); // Use URL as a string
-      print("Raw Response: $response");
+      print(url);
+      print(jsonEncode(toJson()));
+      print(response);
 
-      if (response is Map<String, dynamic>) {
-        result = response;
-        print("Parsed Response: $result");
-      } else {
-        throw Exception("Unexpected response format");
+      if (response == null) throw Exception("Null response from server");
+
+      if (response["ok"] == 1 && response.containsKey("data")) {
+        String sessionData = jsonEncode(response["data"]);
+        await session.setSession("usersession", sessionData);
+
+        return {
+          "ok": 1,
+          "message": response["message"] ?? "Login successful",
+          "data": response["data"]
+        };
       }
-    } catch (error, stackTrace) {
-      result["error"] = "Something went wrong: $error";
-      print("Exception: $error\nStackTrace: $stackTrace");
-    }
 
-    return result;
+      return {"ok": 0, "message": response["message"] ?? "Invalid credentials"};
+    } catch (e) {
+      return {
+        "ok": 0,
+        "message": "Something went wrong",
+        "error": e.toString()
+      };
+    }
   }
 }

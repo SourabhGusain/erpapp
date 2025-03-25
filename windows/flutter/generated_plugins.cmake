@@ -3,8 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  firebase_core
   geolocator_windows
+  secure_application
   url_launcher_windows
 )
 

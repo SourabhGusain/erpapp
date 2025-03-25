@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:erpapp/pages/home/home.controller.dart';
 import 'package:erpapp/helpers/values.dart';
+import 'package:erpapp/models/issuelog.dart';
+import 'package:intl/intl.dart';
 import 'package:erpapp/widgets/form.dart';
 
 class IssueDetailPage extends StatelessWidget {
   final issue;
-
   const IssueDetailPage({Key? key, required this.issue}) : super(key: key);
 
   @override
@@ -22,106 +23,104 @@ class IssueDetailPage extends StatelessWidget {
                 icon: const Icon(Icons.arrow_back, color: whiteColor),
                 onPressed: () => Navigator.pop(context),
               ),
-              title: Text(
-                issue.title,
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: whiteColor),
-              ),
+              title: textH1(issue.title ?? 'Issue Details', color: whiteColor),
               backgroundColor: primaryColor,
             ),
-            body: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.blueAccent,
-                        child: Text(issue.title[0].toUpperCase(),
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              issue.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Reported on: ${issue.timestamp}",
-                              style: const TextStyle(
-                                  fontSize: 14, color: Colors.black54),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 30, thickness: 1),
-                  Text(
-                    issue.longDescription,
-                    style: const TextStyle(
-                        fontSize: 16, color: Colors.black87, height: 1.5),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.priority_high,
-                        size: 24,
-                        color: model.getColorBasedOnPriority(issue.priority),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        "Priority: ${issue.priority}",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: model.getColorBasedOnPriority(issue.priority),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(Icons.flag, size: 24, color: Colors.blueGrey),
-                      const SizedBox(width: 10),
-                      Text(
-                        "Status: ${issue.status}",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  if (!issue.isResolved)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => model.viewIssue(context, issue),
-                        child: const Text(
-                          "Mark as Resolved",
-                          style: TextStyle(fontSize: 16, color: Colors.blue),
-                        ),
-                      ),
-                    ),
-                ],
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(issue),
+                    const Divider(height: 30, thickness: 1),
+                    textH2(issue.description ?? "No description available",
+                        font_weight: FontWeight.w400, font_size: 15),
+                    const SizedBox(height: 20),
+                    _buildIssueDetails(issue, model),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),
         );
       },
     );
+  }
+
+  Widget _buildHeader(issue) {
+    return Row(
+      children: [
+        CircleAvatar(
+          backgroundColor: Colors.blueAccent,
+          child: textH1(
+            (issue.title?.isNotEmpty ?? false)
+                ? issue.title![0].toUpperCase()
+                : "?",
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              textH1(issue.title ?? "Unknown Issue"),
+              const SizedBox(height: 4),
+              subtext(
+                "Reported on: ${issue.createdOn != null ? DateFormat('yyyy-MM-dd HH:mm').format(issue.createdOn!) : 'Unknown'}",
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIssueDetails(issue, HomeController model) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildDetailRow(
+          icon: Icons.priority_high,
+          text: "Priority: ${issue.priority?.toUpperCase() ?? 'Low'}",
+          color: model.getColorBasedOnPriority(issue.priority ?? "low"),
+        ),
+        const SizedBox(height: 12),
+        _buildDetailRow(
+          icon: Icons.flag,
+          text: "Status: ${_formatStatus(issue.status)}",
+          color: Colors.blueGrey,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String text,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 24, color: color),
+        const SizedBox(width: 10),
+        textH2(text, color: color),
+      ],
+    );
+  }
+
+  String _formatStatus(String? status) {
+    switch (status) {
+      case "in_progress":
+        return "In Progress";
+      case "resolved":
+        return "Resolved";
+      case "open":
+        return "Open";
+      default:
+        return "Unknown";
+    }
   }
 }
