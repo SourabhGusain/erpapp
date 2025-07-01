@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
-import 'package:erpapp/models/login.dart';
+import 'package:erpapp/models/login.model.dart';
 import 'package:erpapp/helpers/get.dart';
 import 'package:erpapp/pages/home/home.view.dart';
 import 'package:erpapp/helpers/session.dart';
@@ -23,6 +23,7 @@ class LoginController extends BaseViewModel {
     if (!(formKey.currentState?.validate() ?? false)) return;
 
     _toggleLoading(true);
+
     try {
       final response = await LoginModel(
         mobile: mobileController.text.trim(),
@@ -39,15 +40,14 @@ class LoginController extends BaseViewModel {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
       );
     } finally {
       _toggleLoading(false);
     }
   }
-
-  // Future<Map<String, dynamic>?> getSessionData() => _loginModel.getSession();
-  // Future<bool> hasSession() => _loginModel.hasSession();
 
   @override
   void dispose() {

@@ -5,12 +5,14 @@ import 'package:erpapp/pages/login/login.view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:erpapp/widgets/form.dart';
 import 'package:erpapp/helpers/values.dart';
+import 'package:erpapp/helpers/widgets.dart';
 import 'package:erpapp/helpers/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:erpapp/models/issuelog.dart';
 import 'package:erpapp/helpers/session.dart';
 import 'package:secure_application/secure_application.dart';
+import 'package:erpapp/pages/manage/manage.view.dart';
 
 class HomePage extends StatefulWidget {
   final Session session;
@@ -26,8 +28,9 @@ class _HomePageState extends State<HomePage> {
   TextEditingController searchController = TextEditingController();
 
   final SecureApplicationController _secureController =
-      SecureApplicationController(
-          SecureApplicationState()); // Allows screenshots
+      SecureApplicationController(SecureApplicationState());
+
+  int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -40,20 +43,23 @@ class _HomePageState extends State<HomePage> {
           viewModelBuilder: () => HomeController(),
           onViewModelReady: (controller) {
             controller.init();
-            secureController.unlock(); // Corrected method
+            secureController.unlock();
           },
           builder: (context, ctrl, child) {
             return SafeArea(
               child: Scaffold(
                 appBar: AppBar(
-                  title: textH1('Issue Log', color: whiteColor),
+                  automaticallyImplyLeading: false,
+                  title: textH1('Corrttech Solutions (Issue Logs)',
+                      font_size: 19, color: whiteColor),
                   backgroundColor: primaryColor,
                   elevation: 0,
                   actions: [
                     IconButton(
                       icon: const Icon(LucideIcons.logOut, color: Colors.white),
                       onPressed: () async {
-                        await widget.session.removeSession('user_token');
+                        await widget.session.removeSession('loggedInUserKey');
+                        await widget.session.removeSession('loggedInUser');
                         Get.toWithNoBack(
                             context, () => LoginPage(session: widget.session));
                       },
@@ -82,6 +88,33 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
+                ),
+                bottomNavigationBar: bottomBar(
+                  selectedIndex,
+                  (index) {
+                    switch (index) {
+                      case 0:
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                HomePage(session: widget.session),
+                          ),
+                        );
+                        break;
+                      case 1:
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ManagePage(session: widget.session),
+                          ),
+                        );
+                        break;
+                      default:
+                        break;
+                    }
+                  },
                 ),
               ),
             );

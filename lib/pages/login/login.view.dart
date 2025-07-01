@@ -49,17 +49,6 @@ class LoginPage extends StatelessWidget {
                               isPassword: true,
                               validator: passwordValidator),
                         ),
-                        // Align(
-                        //   alignment: Alignment.centerRight,
-                        //   child: GestureDetector(
-                        //     onTap: () =>
-                        //         Get.to(context, () => ForgotPasswordPage()),
-                        //     child: linkText('Forgot Password?',
-                        //         font_size: 14,
-                        //         font_weight: FontWeight.w600,
-                        //         text_border: TextDecoration.none),
-                        //   ),
-                        // ),
                         const SizedBox(height: 50),
                         SizedBox(
                           height: 50,

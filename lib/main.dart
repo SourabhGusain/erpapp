@@ -28,6 +28,7 @@ class _MainAppState extends State<MainApp> {
 
   Future<bool> _checkLoginStatus() async {
     String? key = await session.getSession("loggedInUserKey");
+    print("Session key: $key");
     return key != null && key.isNotEmpty;
   }
 
@@ -53,6 +54,7 @@ class _MainAppState extends State<MainApp> {
               body: Center(child: Text("Error loading session")),
             );
           } else {
+            print("User logged in: ${snapshot.data}");
             return snapshot.data == true
                 ? HomePage(session: session)
                 : LoginPage(session: session);

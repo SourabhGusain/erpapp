@@ -257,73 +257,80 @@ import 'package:erpapp/widgets/form.dart';
 //   );
 // }
 
-// Widget bottomBar(int selectedIndex, Function? onItemTapped) {
-//   return BottomNavigationBar(
-//     type: BottomNavigationBarType.fixed,
-//     items: const <BottomNavigationBarItem>[
-//       BottomNavigationBarItem(
-//         icon: Icon(Icons.home),
-//         label: 'Home',
-//       ),
-//       BottomNavigationBarItem(
-//         icon: Icon(Icons.shopping_bag),
-//         label: 'Wallet',
-//       ),
-//       BottomNavigationBarItem(
-//         icon: Icon(Icons.shopping_cart),
-//         label: 'Transactions',
-//       ),
-//       BottomNavigationBarItem(
-//         icon: Icon(Icons.person),
-//         label: 'Account',
-//       ),
-//     ],
-//     currentIndex: 4 > selectedIndex ? selectedIndex : 0,
-//     selectedItemColor: primaryColor,
-//     onTap: (index) {
-//       if (onItemTapped != null) {
-//         onItemTapped(index);
-//       }
-//     },
-//   );
-// }
-
-Widget textField(String labelText,
-    {TextEditingController? controller,
-    String? hintText,
-    Function? validator,
-    TextInputType keyboardType = TextInputType.text,
-    int? maxLength,
-    String prefixText = "",
-    bool isPassword = false,
-    bool readOnly = false,
-    Function(String)? onChanged,
-    Function()? onTap}) {
-  return TextFormField(
-    validator: (text) {
-      if (validator != null) {
-        return validator(text);
+Widget bottomBar(int selectedIndex, Function? onItemTapped) {
+  return BottomNavigationBar(
+    type: BottomNavigationBarType.fixed,
+    items: const <BottomNavigationBarItem>[
+      BottomNavigationBarItem(
+        icon: Icon(Icons.home),
+        label: 'Home',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.manage_accounts),
+        label: 'Manage',
+      ),
+    ],
+    currentIndex: selectedIndex < 2 ? selectedIndex : 0,
+    elevation: 8,
+    backgroundColor: Colors.white,
+    selectedItemColor: primaryColor,
+    unselectedItemColor: Colors.grey[600],
+    selectedIconTheme: const IconThemeData(size: 22),
+    unselectedIconTheme: const IconThemeData(size: 20),
+    showSelectedLabels: true,
+    showUnselectedLabels: true,
+    selectedLabelStyle: const TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+    ),
+    unselectedLabelStyle: const TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+    ),
+    onTap: (index) {
+      if (onItemTapped != null) {
+        onItemTapped(index);
       }
-      return null;
     },
-    controller: controller,
-    keyboardType: keyboardType,
-    maxLength: maxLength,
-    obscureText: isPassword,
-    readOnly: readOnly,
-    onChanged: onChanged,
-    onTap: onTap,
-    decoration: InputDecoration(
-        counterText: "",
-        prefixText: prefixText, // Prefix text
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-        labelText: labelText,
-        hintText: hintText,
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400)),
   );
 }
+
+// Widget textField(String labelText,
+//     {TextEditingController? controller,
+//     String? hintText,
+//     Function? validator,
+//     TextInputType keyboardType = TextInputType.text,
+//     int? maxLength,
+//     String prefixText = "",
+//     bool isPassword = false,
+//     bool readOnly = false,
+//     Function(String)? onChanged,
+//     Function()? onTap}) {
+//   return TextFormField(
+//     validator: (text) {
+//       if (validator != null) {
+//         return validator(text);
+//       }
+//       return null;
+//     },
+//     controller: controller,
+//     keyboardType: keyboardType,
+//     maxLength: maxLength,
+//     obscureText: isPassword,
+//     readOnly: readOnly,
+//     onChanged: onChanged,
+//     onTap: onTap,
+//     decoration: InputDecoration(
+//         counterText: "",
+//         prefixText: prefixText, // Prefix text
+//         border: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(5),
+//         ),
+//         labelText: labelText,
+//         hintText: hintText,
+//         hintStyle: const TextStyle(fontWeight: FontWeight.w400)),
+//   );
+// }
 
 // Widget darkButton(Widget text,
 //     {Color primary = primaryColor,

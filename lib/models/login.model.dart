@@ -16,24 +16,33 @@ class LoginModel extends Api {
   Future<Map<String, dynamic>> login() async {
     try {
       final url = "$api_url/partners/login/";
+      print("Login URL: $url");
       final response = await postCalling(url, toJson());
 
-      print(url);
-      print(jsonEncode(toJson()));
-      print(response);
-
       if (response["ok"] == 1 && response.containsKey("data")) {
+        // Save session
         String sessionData = jsonEncode(response["data"]);
-        await session.setSession("usersession", sessionData);
+        await session.setSession("loggedInUser", sessionData);
 
+        String? token = response["data"]["token"];
+        if (token != null) {
+          await session.setSession("loggedInUserKey", token);
+          print("Session data set: $sessionData");
+          print("Session token set: $token");
+        } else {
+          print("No token found in response data");
+        }
         return {
           "ok": 1,
-          "message": response["message"] ?? "Login successful",
+          "message": "Login successful",
           "data": response["data"]
         };
+      } else {
+        return {
+          "ok": 0,
+          "message": response["message"] ?? "Invalid credentials"
+        };
       }
-
-      return {"ok": 0, "message": response["message"] ?? "Invalid credentials"};
     } catch (e) {
       return {
         "ok": 0,
