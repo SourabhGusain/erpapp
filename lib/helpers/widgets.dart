@@ -758,7 +758,8 @@ class ThumbsUpButton extends StatelessWidget {
   final int count;
   final VoidCallback onPressed;
 
-  ThumbsUpButton({
+  const ThumbsUpButton({
+    super.key,
     required this.icon,
     required this.count,
     required this.onPressed,

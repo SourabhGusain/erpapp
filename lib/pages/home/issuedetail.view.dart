@@ -8,7 +8,7 @@ import 'package:erpapp/widgets/form.dart';
 
 class IssueDetailPage extends StatelessWidget {
   final issue;
-  const IssueDetailPage({Key? key, required this.issue}) : super(key: key);
+  const IssueDetailPage({super.key, required this.issue});
 
   @override
   Widget build(BuildContext context) {

@@ -22,8 +22,6 @@ class LoginModel extends Api {
       print(jsonEncode(toJson()));
       print(response);
 
-      if (response == null) throw Exception("Null response from server");
-
       if (response["ok"] == 1 && response.containsKey("data")) {
         String sessionData = jsonEncode(response["data"]);
         await session.setSession("usersession", sessionData);

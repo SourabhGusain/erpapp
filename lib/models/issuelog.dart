@@ -51,8 +51,9 @@ class ApiService {
   Future<List<Task>> fetchIssueLogs() async {
     try {
       final sessionData = await Session().getSession("usersession");
-      if (sessionData == null || sessionData.isEmpty)
+      if (sessionData == null || sessionData.isEmpty) {
         throw 'Missing session data';
+      }
 
       final token = jsonDecode(sessionData)["token"];
       if (token == null || token.isEmpty) throw 'Missing authentication token';

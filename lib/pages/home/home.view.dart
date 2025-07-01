@@ -14,7 +14,7 @@ import 'package:secure_application/secure_application.dart';
 
 class HomePage extends StatefulWidget {
   final Session session;
-  HomePage({super.key, required this.session});
+  const HomePage({super.key, required this.session});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final SecureApplicationController _secureController =
+    final SecureApplicationController secureController =
         SecureApplicationController(SecureApplicationState());
 
     return SecureApplication(
@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
           viewModelBuilder: () => HomeController(),
           onViewModelReady: (controller) {
             controller.init();
-            _secureController.unlock(); // Corrected method
+            secureController.unlock(); // Corrected method
           },
           builder: (context, ctrl, child) {
             return SafeArea(
@@ -280,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                     Navigator.pop(context);
                   },
                 );
-              }).toList(),
+              }),
             ],
           ),
         );

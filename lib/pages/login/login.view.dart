@@ -9,7 +9,7 @@ import 'package:erpapp/helpers/session.dart';
 
 class LoginPage extends StatelessWidget {
   final Session session;
-  LoginPage({super.key, required this.session});
+  const LoginPage({super.key, required this.session});
 
   @override
   Widget build(BuildContext context) {
