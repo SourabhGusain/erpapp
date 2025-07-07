@@ -19,14 +19,16 @@ class ManagePage extends StatefulWidget {
 class _ManagePageState extends State<ManagePage> {
   late final WebViewController _controller;
   int selectedIndex = 1;
-  final String url = 'https://corrtechsolutions.in/admin/';
+  final String url = 'https://corrtechsolutions.in/custom-login/';
 
   @override
   void initState() {
     super.initState();
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(url));
+    widget.session.getSession('loggedInUserKey').then((key) {
+      _controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..loadRequest(Uri.parse("$url$key/"));
+    });
   }
 
   @override

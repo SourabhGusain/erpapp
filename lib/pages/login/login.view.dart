@@ -35,7 +35,7 @@ class LoginPage extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24.0,
-                        vertical: 40,
+                        vertical: 25,
                       ),
                       child: Form(
                         key: ctrl.formKey,
@@ -44,9 +44,9 @@ class LoginPage extends StatelessWidget {
                           children: [
                             Image.asset(
                               'assets/img/login-img.png',
-                              height: 200,
+                              height: 235,
                             ),
-                            const SizedBox(height: 40),
+                            const SizedBox(height: 20),
                             Align(
                               alignment: Alignment.centerLeft,
                               child: textH1(
@@ -55,7 +55,7 @@ class LoginPage extends StatelessWidget {
                                 color: primaryColor,
                               ),
                             ),
-                            // const SizedBox(height: ),
+                            const SizedBox(height: 5),
                             Align(
                               alignment: Alignment.centerLeft,
                               child: subtext(
@@ -71,14 +71,13 @@ class LoginPage extends StatelessWidget {
                               controller: ctrl.mobileController,
                               validator: mobileValidator,
                             ),
-                            const SizedBox(height: 5),
                             textField(
                               'Enter Password',
                               controller: ctrl.passwordController,
                               isPassword: true,
                               validator: passwordValidator,
                             ),
-                            const SizedBox(height: 70),
+                            const SizedBox(height: 50),
                             SizedBox(
                               height: 50,
                               width: double.infinity,
@@ -92,7 +91,7 @@ class LoginPage extends StatelessWidget {
                                     : () => ctrl.login(context),
                               ),
                             ),
-                            const SizedBox(height: 40),
+                            const SizedBox(height: 60),
                             Column(
                               children: [
                                 subtext(

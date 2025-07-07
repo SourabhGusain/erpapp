@@ -17,10 +17,7 @@ import 'package:erpapp/pages/manage/manage.view.dart';
 class HomePage extends StatefulWidget {
   final Session session;
 
-  const HomePage({
-    super.key,
-    required this.session,
-  });
+  const HomePage({super.key, required this.session});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -31,97 +28,126 @@ class _HomePageState extends State<HomePage> {
   String selectedStatus = 'All';
   TextEditingController searchController = TextEditingController();
 
-  final SecureApplicationController _secureController =
-      SecureApplicationController(SecureApplicationState());
-
   int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    final SecureApplicationController secureController =
-        SecureApplicationController(SecureApplicationState());
-
     return SecureApplication(
       child: SecureApplicationProvider(
         child: ViewModelBuilder<HomeController>.reactive(
           viewModelBuilder: () => HomeController(),
           onViewModelReady: (controller) {
             controller.init();
-            secureController.unlock();
           },
           builder: (context, ctrl, child) {
             return SafeArea(
-              child: Scaffold(
-                appBar: AppBar(
-                  automaticallyImplyLeading: false,
-                  title: textH1('Corrttech Solutions (Issue Logs)',
-                      font_size: 19, color: whiteColor),
-                  backgroundColor: primaryColor,
-                  elevation: 0,
-                  actions: [
-                    IconButton(
-                      icon: const Icon(LucideIcons.logOut, color: Colors.white),
-                      onPressed: () async {
-                        await widget.session.removeSession('loggedInUserKey');
-                        await widget.session.removeSession('loggedInUser');
-                        Get.toWithNoBack(
-                            context, () => LoginPage(session: widget.session));
-                      },
-                    ),
-                  ],
-                ),
-                body: RefreshIndicator(
-                  onRefresh: () async {
-                    setState(() {});
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        searchBar(ctrl),
-                        const SizedBox(height: 15),
-                        filterSection(ctrl),
-                        const SizedBox(height: 5),
-                        const Divider(),
-                        const SizedBox(height: 5),
-                        Expanded(
-                          child: ctrl.filteredIssues.isEmpty
-                              ? emptyState('No issues logged yet')
-                              : listViewBuilder(ctrl),
+              child: Stack(
+                children: [
+                  Scaffold(
+                    appBar: AppBar(
+                      automaticallyImplyLeading: false,
+                      backgroundColor: primaryColor,
+                      elevation: 0,
+                      title: Row(
+                        children: [
+                          textH1(
+                            'Issue Logs ',
+                            font_size: 24,
+                            color: whiteColor,
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        IconButton(
+                          icon: const Icon(LucideIcons.logOut,
+                              color: Colors.white),
+                          onPressed: () async {
+                            await widget.session
+                                .removeSession('loggedInUserKey');
+                            await widget.session.removeSession('loggedInUser');
+                            Get.toWithNoBack(
+                              context,
+                              () => LoginPage(session: widget.session),
+                            );
+                          },
                         ),
                       ],
                     ),
+                    body: RefreshIndicator(
+                      color: primaryColor,
+                      onRefresh: () async {
+                        await ctrl.init();
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              searchBar(ctrl),
+                              filterSection(ctrl),
+                              const SizedBox(height: 10),
+                              const Divider(),
+                              const SizedBox(height: 5),
+                              ctrl.filteredIssues.isEmpty
+                                  ? emptyState('No issues logged yet')
+                                  : ListView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: ctrl.filteredIssues.length,
+                                      itemBuilder: (context, index) {
+                                        final issue =
+                                            ctrl.filteredIssues[index];
+                                        return issueCard(issue);
+                                      },
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    bottomNavigationBar: bottomBar(
+                      selectedIndex,
+                      (index) async {
+                        ctrl.setBusy(true);
+                        await Future.delayed(const Duration(milliseconds: 300));
+                        switch (index) {
+                          case 0:
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    HomePage(session: widget.session),
+                              ),
+                            );
+                            break;
+                          case 1:
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ManagePage(session: widget.session),
+                              ),
+                            );
+                            break;
+                          default:
+                            break;
+                        }
+                        ctrl.setBusy(false);
+                      },
+                    ),
                   ),
-                ),
-                bottomNavigationBar: bottomBar(
-                  selectedIndex,
-                  (index) {
-                    switch (index) {
-                      case 0:
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomePage(
-                              session: widget.session,
-                            ),
-                          ),
-                        );
-                        break;
-                      case 1:
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ManagePage(
-                              session: widget.session,
-                            ),
-                          ),
-                        );
-                        break;
-                      default:
-                        break;
-                    }
-                  },
-                ),
+
+                  // ✅ Full-screen loading overlay
+                  if (ctrl.isBusy)
+                    Container(
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                ],
               ),
             );
           },
@@ -160,36 +186,27 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget listViewBuilder(HomeController ctrl) {
-    return ListView.builder(
-      itemCount: ctrl.filteredIssues.length,
-      itemBuilder: (context, index) {
-        final issue = ctrl.filteredIssues[index];
-        return issueCard(issue);
-      },
-    );
-  }
-
   Widget issueCard(Task issue) {
     return Card(
-        color: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => IssueDetailPage(issue: issue),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-            child: Row(children: [
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => IssueDetailPage(issue: issue),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          child: Row(
+            children: [
               CircleAvatar(
                 backgroundColor: primaryColor,
                 child: textH1(
@@ -213,32 +230,37 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(width: 8),
                         subtext(
-                            DateFormat('yyyy-MM-dd').format(issue.createdOn),
-                            font_size: 11,
-                            color: const Color.fromARGB(255, 78, 78, 78)),
+                          DateFormat('yyyy-MM-dd').format(issue.createdOn),
+                          font_size: 11,
+                          color: const Color.fromARGB(255, 78, 78, 78),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     subtext(
-                        issue.description.length > 65
-                            ? "${issue.description.substring(0, 70)}..."
-                            : issue.description,
-                        maxLines: 2,
-                        font_size: 12,
-                        color: blackColor,
-                        font_weight: FontWeight.w400),
+                      issue.description.length > 65
+                          ? "${issue.description.substring(0, 70)}..."
+                          : issue.description,
+                      maxLines: 2,
+                      font_size: 12,
+                      color: blackColor,
+                      font_weight: FontWeight.w400,
+                    ),
                   ],
                 ),
               ),
-            ]),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
-  Widget filterButton(
-      {required String text,
-      required IconData icon,
-      required VoidCallback onPressed}) {
+  Widget filterButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, size: 20),
@@ -248,8 +270,8 @@ class _HomePageState extends State<HomePage> {
         foregroundColor: blackColor,
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: primaryColor),
+          borderRadius: BorderRadius.circular(5),
+          side: BorderSide(color: Colors.grey[500]!),
         ),
         elevation: 2,
       ),
@@ -267,11 +289,13 @@ class _HomePageState extends State<HomePage> {
       title: "Select Priority",
       options: ['All', 'Low', 'Medium', 'High', 'Critical'],
       selectedValue: selectedPriority,
-      onSelected: (value) {
-        setState(() {
-          selectedPriority = value;
-          ctrl.filterIssues(priority: selectedPriority, status: selectedStatus);
-        });
+      onSelected: (value) async {
+        Navigator.pop(context);
+        ctrl.setBusy(true);
+        setState(() => selectedPriority = value);
+        await ctrl.filterIssues(
+            priority: selectedPriority, status: selectedStatus);
+        ctrl.setBusy(false);
       },
     );
   }
@@ -281,11 +305,13 @@ class _HomePageState extends State<HomePage> {
       title: "Select Status",
       options: ['All', 'Open', 'In_Progress', 'Resolved', 'Closed'],
       selectedValue: selectedStatus,
-      onSelected: (value) {
-        setState(() {
-          selectedStatus = value;
-          ctrl.filterIssues(priority: selectedPriority, status: selectedStatus);
-        });
+      onSelected: (value) async {
+        Navigator.pop(context);
+        ctrl.setBusy(true);
+        setState(() => selectedStatus = value);
+        await ctrl.filterIssues(
+            priority: selectedPriority, status: selectedStatus);
+        ctrl.setBusy(false);
       },
     );
   }
@@ -314,10 +340,7 @@ class _HomePageState extends State<HomePage> {
                   trailing: option == selectedValue
                       ? const Icon(Icons.check, color: Colors.blue)
                       : null,
-                  onTap: () {
-                    onSelected(option);
-                    Navigator.pop(context);
-                  },
+                  onTap: () => onSelected(option),
                 );
               }),
             ],

@@ -137,9 +137,9 @@ Widget linkText(String text,
   );
 }
 
-Widget textField(String labelText,
+Widget textField(String hintText,
     {TextEditingController? controller,
-    String? hintText,
+    // String? hintText,
     String? Function(String?)? validator, // Corrected validator type
     TextInputType keyboardType = TextInputType.text,
     int? maxLength,
@@ -149,9 +149,9 @@ Widget textField(String labelText,
     Function(String)? onChanged,
     Function()? onTap}) {
   return SizedBox(
-    height: 70, // Increased height for consistent sizing
+    height: 70,
     child: TextFormField(
-      validator: validator, // Directly use validator function
+      validator: validator,
       controller: controller,
       keyboardType: keyboardType,
       maxLength: maxLength,
@@ -165,11 +165,12 @@ Widget textField(String labelText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
         ),
-        labelText: labelText,
+        // labelText: labelText,
         hintText: hintText,
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 15, horizontal: 10), // Added padding
+        hintStyle:
+            TextStyle(fontWeight: FontWeight.w400, color: Colors.grey[600]!),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 13, horizontal: 12),
       ),
     ),
   );

@@ -38,7 +38,7 @@ class HomeController extends BaseViewModel {
     filterIssues();
   }
 
-  void filterIssues({String priority = "All", String status = "All"}) {
+  filterIssues({String priority = "All", String status = "All"}) {
     print("Filtering issues with:");
     print("Priority: $priority");
     print("Status: $status");

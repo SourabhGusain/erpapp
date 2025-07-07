@@ -272,7 +272,7 @@ Widget bottomBar(int selectedIndex, Function? onItemTapped) {
     ],
     currentIndex: selectedIndex < 2 ? selectedIndex : 0,
     elevation: 8,
-    backgroundColor: Colors.white,
+    backgroundColor: const Color.fromARGB(255, 247, 248, 255),
     selectedItemColor: primaryColor,
     unselectedItemColor: Colors.grey[600],
     selectedIconTheme: const IconThemeData(size: 22),
