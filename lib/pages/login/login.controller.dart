@@ -34,7 +34,11 @@ class LoginController extends BaseViewModel {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login Successful!')),
         );
-        Get.toWithNoBack(context, () => HomePage(session: session));
+        Get.toWithNoBack(
+            context,
+            () => HomePage(
+                  session: session,
+                ));
       } else {
         throw Exception(response["message"] ?? "Login failed.");
       }

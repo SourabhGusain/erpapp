@@ -1,13 +1,11 @@
-import 'package:stacked/stacked.dart';
-import 'package:flutter/material.dart';
 import 'package:erpapp/helpers/session.dart';
-import 'package:erpapp/helpers/widgets.dart';
-import 'package:erpapp/pages/home/home.view.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:erpapp/pages/home/home.controller.dart';
+import 'package:flutter/material.dart';
 import 'package:secure_application/secure_application.dart';
-
-// import 'package:erpapp/models/manage.model.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:stacked/stacked.dart';
+import 'package:erpapp/helpers/widgets.dart';
+import 'package:erpapp/pages/home/home.controller.dart';
+import 'package:erpapp/pages/home/home.view.dart';
 
 class ManagePage extends StatefulWidget {
   final Session session;
@@ -19,34 +17,17 @@ class ManagePage extends StatefulWidget {
 }
 
 class _ManagePageState extends State<ManagePage> {
-  int selectedIndex = 1;
-  // final String url = 'https://corrtechsolutions.in/admin/';
-  final String url = 'https://corrtechsolutions.in/custom-login/';
-
   late final WebViewController _controller;
+  int selectedIndex = 1;
+  final String url = 'https://corrtechsolutions.in/admin/';
 
   @override
   void initState() {
     super.initState();
     _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted);
-    // _setCookieAndLoad();
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(url));
   }
-
-  // Future<void> _setCookieAndLoad() async {
-  //   final cookieManager = WebViewCookieManager();
-
-  //   await cookieManager.setCookie(
-  //     WebViewCookie(
-  //       name: 'sessionid',
-  //       value: widget.session.sessionId,
-  //       domain: 'corrtechsolutions.in',
-  //       path: '/',
-  //     ),
-  //   );
-
-  //   await _controller.loadRequest(Uri.parse(url));
-  // }
 
   @override
   Widget build(BuildContext context) {

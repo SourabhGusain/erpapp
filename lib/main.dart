@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:erpapp/helpers/get.dart';
 import 'package:erpapp/helpers/session.dart';
-import 'package:erpapp/pages/login/login.view.dart';
 import 'package:erpapp/pages/home/home.view.dart';
+import 'package:erpapp/pages/login/login.view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,7 +56,9 @@ class _MainAppState extends State<MainApp> {
           } else {
             print("User logged in: ${snapshot.data}");
             return snapshot.data == true
-                ? HomePage(session: session)
+                ? HomePage(
+                    session: session,
+                  )
                 : LoginPage(session: session);
           }
         },

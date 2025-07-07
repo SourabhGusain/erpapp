@@ -16,7 +16,11 @@ import 'package:erpapp/pages/manage/manage.view.dart';
 
 class HomePage extends StatefulWidget {
   final Session session;
-  const HomePage({super.key, required this.session});
+
+  const HomePage({
+    super.key,
+    required this.session,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -97,8 +101,9 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                HomePage(session: widget.session),
+                            builder: (context) => HomePage(
+                              session: widget.session,
+                            ),
                           ),
                         );
                         break;
@@ -106,8 +111,9 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                ManagePage(session: widget.session),
+                            builder: (context) => ManagePage(
+                              session: widget.session,
+                            ),
                           ),
                         );
                         break;
