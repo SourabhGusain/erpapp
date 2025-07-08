@@ -58,19 +58,83 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       actions: [
-                        IconButton(
-                          icon: const Icon(LucideIcons.logOut,
-                              color: Colors.white),
-                          onPressed: () async {
-                            await widget.session
-                                .removeSession('loggedInUserKey');
-                            await widget.session.removeSession('loggedInUser');
-                            Get.toWithNoBack(
-                              context,
-                              () => LoginPage(session: widget.session),
-                            );
-                          },
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: textH1('Confirm Logout',
+                                        font_weight: FontWeight.w500,
+                                        font_size: 20,
+                                        color: blackColor),
+                                    content: textH2(
+                                        'Are you sure you want to log out?',
+                                        font_weight: FontWeight.w400,
+                                        font_size: 14,
+                                        color: const Color.fromARGB(
+                                            255, 69, 69, 69)),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: textH2('Cancel',
+                                            font_weight: FontWeight.w500,
+                                            font_size: 16,
+                                            color: primaryColor),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          Navigator.of(context)
+                                              .pop(); // Close dialog
+                                          await widget.session
+                                              .removeSession('loggedInUserKey');
+                                          await widget.session
+                                              .removeSession('loggedInUser');
+                                          Get.toWithNoBack(
+                                            context,
+                                            () => LoginPage(
+                                                session: widget.session),
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          child: textH2(
+                                            'Logout',
+                                            font_weight: FontWeight.w500,
+                                            font_size: 16,
+                                            color: primaryColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: Column(
+                                children: [
+                                  const Icon(
+                                    LucideIcons.logOut,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  textH3("Logout",
+                                      color: whiteColor, font_size: 10),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(width: 18),
                       ],
                     ),
                     body: RefreshIndicator(
@@ -139,7 +203,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  // ✅ Full-screen loading overlay
+                  // ✅ Loading overlay stays the same
                   if (ctrl.isBusy)
                     Container(
                       color: Colors.black.withOpacity(0.3),
